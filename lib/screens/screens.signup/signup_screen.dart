@@ -15,7 +15,7 @@ class _SigUpScreenState extends State<SigUpScreen> {
     email: '',
     password: '',
     name: '',
-    confirmPassword: '',
+    confirmPassword: '', id: '',
   );
   bool isLoading = false;       // Controla se está carregando (mostra spinner no botão)
 

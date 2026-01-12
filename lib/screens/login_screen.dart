@@ -48,7 +48,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final error = await context.read<UserManager>().signIn(
       model.User(
         email: emailController.text.trim(),
-        password: passController.text, name: '', confirmPassword: '',
+        password: passController.text, name: '', confirmPassword: '', id: '',
       ),
     );
 
