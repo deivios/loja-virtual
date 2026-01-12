@@ -1,16 +1,19 @@
 import 'package:flutter/cupertino.dart';
 
 class PageManager {
-  PageManager(this._pageController);
+  // Construtor: recebe o PageController que controla o PageView
+  PageManager(this.pageController);
 
-  PageController _pageController;
+  final PageController pageController;
 
+  // Guarda o índice da página atual (começa em 0)
   int page = 0;
 
-  void setPage(int value) {
-    if(value == page) return;
-    page = value;
-    _pageController.jumpToPage(value);
+  // Método para mudar de página
+  void setPage(int newPage) {
+    if (newPage == page) return; // Se já está na mesma página, não faz nada
+
+    page = newPage;              // Atualiza o número da página atual
+    pageController.jumpToPage(newPage); // Muda a tela no PageView
   }
 }
-  
