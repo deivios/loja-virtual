@@ -45,6 +45,7 @@ class _SigUpScreenState extends State<SigUpScreen> {
               children: <Widget>[                                // Lista de widgets filhos (campos + botão)
                 
                 TextFormField(                                 // Campo de texto para o nome completo
+                  enabled: !isLoading,
                   decoration: const InputDecoration(hintText: 'Nome Completo'),
                   autovalidateMode: AutovalidateMode.onUserInteraction, // Valida automaticamente ao digitar
                   validator: (name) {                              // Função de validação do nome
@@ -60,6 +61,7 @@ class _SigUpScreenState extends State<SigUpScreen> {
                 const SizedBox(height: 16),                        // Espaçamento vertical entre campos
                 
                 TextFormField(                                     // Campo de e-mail
+                  enabled: !isLoading,
                   decoration: const InputDecoration(hintText: 'E-mail'),
                   keyboardType: TextInputType.emailAddress,        // Teclado otimizado para e-mail (@ e .com)
                   autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -76,6 +78,7 @@ class _SigUpScreenState extends State<SigUpScreen> {
                 const SizedBox(height: 16),
                 
                 TextFormField(                                     // Campo de senha
+                  enabled: !isLoading,
                   decoration: const InputDecoration(hintText: 'Senha'),
                   obscureText: true,                               // Esconde os caracteres (••••)
                   autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -92,6 +95,7 @@ class _SigUpScreenState extends State<SigUpScreen> {
                 const SizedBox(height: 16),
                 
                 TextFormField(                                     // Campo de confirmação de senha
+                  enabled: !isLoading,
                   decoration: const InputDecoration(hintText: 'Repita a Senha'),
                   obscureText: true,
                   autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -121,7 +125,7 @@ class _SigUpScreenState extends State<SigUpScreen> {
                             width: 20,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              color: Colors.white,
                             ),
                           )
                         : const Text(
@@ -174,6 +178,7 @@ class _SigUpScreenState extends State<SigUpScreen> {
                         }
                       }
                     },
+                    
                   ),
                 ),
               ],

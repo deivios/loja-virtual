@@ -1,61 +1,80 @@
-import 'package:firebase_core/firebase_core.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
-import 'package:lojavirtual/firebase_options.dart';
-import 'package:lojavirtual/models/user_manager.dart';
-import 'package:lojavirtual/screens/base/base_screen.dart';
-import 'package:lojavirtual/screens/screens.signup/signup_screen.dart';
-import 'package:provider/provider.dart';
+import 'package:firebase_core/firebase_core.dart';           // Pacote principal para inicializar o Firebase no app
+import 'package:cloud_firestore/cloud_firestore.dart';      // Pacote do Firestore (banco de dados NoSQL do Firebase)
+import 'package:flutter/material.dart';                      // Pacote principal do Flutter (widgets, temas, MaterialApp, etc.)
+import 'package:lojavirtual/firebase_options.dart';         // Arquivo gerado pelo FlutterFire CLI com as configurações do seu projeto Firebase
+import 'package:lojavirtual/models/page_manager.dart';       // Gerenciador de páginas (controla o PageView da BaseScreen)
+import 'package:lojavirtual/models/product_manager.dart';    // Gerenciador de produtos (carrega produtos do Firestore)
+import 'package:lojavirtual/models/user_manager.dart';       // Gerenciador de usuário (login, logout, dados do usuário logado)
+import 'package:lojavirtual/screens/base/base_screen.dart';  // Tela base com PageView e Drawer (menu lateral)
+import 'package:lojavirtual/screens/login_screen.dart';      // Tela de login
+import 'package:lojavirtual/screens/screens.signup/signup_screen.dart'; // Tela de cadastro (signup)
+import 'package:provider/provider.dart';                     // Pacote de gerenciamento de estado (Provider)
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+void main() async {                                          // Função principal do app – async porque inicializa Firebase
+  WidgetsFlutterBinding.ensureInitialized();                 // Garante que o Flutter está pronto antes de rodar código async (obrigatório antes do Firebase)
   
-  // Inicializa o Firebase com o projeto loja-virtual-8d7f7
+  // Inicializa o Firebase com as opções do seu projeto (loja-virtual-8d7f7)
   await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
+    options: DefaultFirebaseOptions.currentPlatform,       // Usa as configs geradas automaticamente pelo FlutterFire CLI
   );
   
-  runApp(const MyApp());
+  runApp(const MyApp());                                     // Inicia o app Flutter passando o widget raiz (MyApp)
   
-  // Listener para monitorar mudanças no documento do Firestore
+  // Listener permanente no Firestore para monitorar a coleção 'boletos' em tempo real
+  // Toda vez que houver mudança (novo boleto, atualização, exclusão), o callback é chamado
   FirebaseFirestore.instance.collection('boletos').snapshots().listen((snapshot){    
-    for(DocumentSnapshot document in snapshot.docs){  
-      print(document.data());
+    for(DocumentSnapshot document in snapshot.docs){         // Itera sobre todos os documentos atuais na coleção 'boletos'
+      print(document.data());                                // Imprime os dados de cada boleto no console (útil para debug)
     }
   });
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class MyApp extends StatelessWidget {                        // Widget raiz do aplicativo (sem estado)
+  const MyApp({super.key});                                  // Construtor constante (boa prática para performance)
 
   @override
-  Widget build(BuildContext context) {
-    return Provider(                           // Fornece o UserManager para toda a árvore de widgets abaixo
-      create: (_) => UserManager(),            // Cria uma instância nova do UserManager quando o app inicia
-      child: MaterialApp(                      // Widget raiz do app Flutter (configura tema, rotas, etc.)
-        debugShowCheckedModeBanner: false,     // Remove a faixa vermelha "DEBUG" no canto superior direito
-        theme: ThemeData(                      // Define o tema visual geral do aplicativo
-          colorScheme: ColorScheme.fromSeed(   // Gera paleta de cores automática a partir de uma cor base
-            seedColor: const Color.fromARGB(255, 36, 103, 205), // Cor principal (azul médio)
+  Widget build(BuildContext context) {                       // Método que constrói a interface
+    return MultiProvider(                                    // Fornece múltiplos gerenciadores de estado para toda a árvore de widgets
+      providers: [                                           // Lista de providers disponíveis em qualquer lugar do app
+        Provider(                                            // Provider simples (não ChangeNotifier) para UserManager
+          create: (_) => UserManager(),                      // Cria instância do UserManager
+          lazy: false,                                       // Carrega imediatamente (não espera ser usado)
+        ),
+        Provider(                                            // Provider para PageManager
+          create: (_) => PageManager(PageController()),  
+          lazy: false,  // Cria PageManager passando um PageController novo
+        ),
+        ChangeNotifierProvider(                              // ProductManager é ChangeNotifier, então precisa desse provider
+          create: (_) => ProductManager(),                   // Cria instância do ProductManager
+          lazy: false,                                       // Carrega imediatamente (ex: já faz fetch dos produtos)
+        ),
+      ],
+      child: MaterialApp(                                    // Widget raiz do Material Design – configura tema, rotas, etc.
+        debugShowCheckedModeBanner: false,                   // Remove a faixa vermelha "DEBUG" no canto superior direito
+        theme: ThemeData(                                    // Define o tema visual geral do aplicativo
+          colorScheme: ColorScheme.fromSeed(                 // Gera paleta de cores automática a partir de uma cor base
+            seedColor: const Color.fromARGB(255, 36, 103, 205), // Azul médio como cor principal (seed)
           ),
         ),
-        color: Colors.blue,                    // Cor principal do app (usada em alguns elementos nativos)
-        initialRoute:  '/base',
-        onGenerateRoute: (settings) {          // Define rotas dinâmicas (chamado quando usa Navigator.pushNamed)
-          switch (settings.name) {             // Verifica o nome da rota solicitada
-            case '/base':                      // Rota para a tela principal (base)
+        color: Colors.blue,                                  // Cor principal do app (usada em alguns elementos nativos como status bar)
+        initialRoute: '/base',                               // Rota inicial quando o app abre (vai direto para BaseScreen)
+        onGenerateRoute: (settings) {                        // Função chamada toda vez que usa Navigator.pushNamed
+          switch (settings.name) {                           // Verifica qual rota foi solicitada
+            case '/login':                                   // Rota para tela de login
               return MaterialPageRoute(
-                builder: (_) => BaseScreen(),  // Retorna a BaseScreen quando a rota é '/base'
+                builder: (_) => LoginScreen(),               // Constrói a tela de login
               );
-            
-            case '/signup':                    // Rota para tela de cadastro
+            case '/base':                                    // Rota para tela principal (com PageView)
               return MaterialPageRoute(
-                builder: (_) => SigUpScreen(), // Retorna SigUpScreen
+                builder: (_) => BaseScreen(),                // Constrói a BaseScreen
               );
-            
-            default:                           // Caso a rota não exista (fallback)
+            case '/signup':                                  // Rota para tela de cadastro
               return MaterialPageRoute(
-                builder: (_) => BaseScreen(),  // Volta para a tela base como padrão
+                builder: (_) => SigUpScreen(),               // Constrói a tela de signup (cadastro)
+              );
+            default:                                         // Caso a rota não exista (fallback)
+              return MaterialPageRoute(
+                builder: (_) => BaseScreen(),                // Volta para a tela base como padrão
               );
           }
         },

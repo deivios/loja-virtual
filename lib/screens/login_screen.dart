@@ -76,13 +76,15 @@ class _LoginScreenState extends State<LoginScreen> {
           duration: Duration(seconds: 2),
         ),
       );
-
+    Navigator.of(context).pop();
       // Aqui você deve colocar a navegação para a próxima tela
       // Exemplo: Navigator.of(context).pushReplacementNamed('/home');
       // ou fechar essa tela de alguma forma
       // onSuccess: () { ... }  ← isso aqui está errado, remova ou corrija
     }
   }
+
+  
 
   @override
   Widget build(BuildContext context) {
