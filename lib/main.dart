@@ -1,6 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';           // Pacote principal para inicializar o Firebase no app
-import 'package:cloud_firestore/cloud_firestore.dart';      // Pacote do Firestore (banco de dados NoSQL do Firebase)
 import 'package:flutter/material.dart';                      // Pacote principal do Flutter (widgets, temas, MaterialApp, etc.)
+// import 'package:flutter/foundation.dart';
 import 'package:lojavirtual/firebase_options.dart';         // Arquivo gerado pelo FlutterFire CLI com as configurações do seu projeto Firebase
 import 'package:lojavirtual/models/page_manager.dart';       // Gerenciador de páginas (controla o PageView da BaseScreen)
 import 'package:lojavirtual/models/product_manager.dart';    // Gerenciador de produtos (carrega produtos do Firestore)
@@ -22,11 +22,7 @@ void main() async {                                          // Função princip
   
   // Listener permanente no Firestore para monitorar a coleção 'boletos' em tempo real
   // Toda vez que houver mudança (novo boleto, atualização, exclusão), o callback é chamado
-  FirebaseFirestore.instance.collection('boletos').snapshots().listen((snapshot){    
-    for(DocumentSnapshot document in snapshot.docs){         // Itera sobre todos os documentos atuais na coleção 'boletos'
-      print(document.data());                                // Imprime os dados de cada boleto no console (útil para debug)
-    }
-  });
+  // Removido o listener de 'boletos' para evitar spam/erro de permissão no console.
 }
 
 class MyApp extends StatelessWidget {                        // Widget raiz do aplicativo (sem estado)

@@ -39,7 +39,8 @@ class CustomDrawerHeader extends StatelessWidget {         // Cria um widget sem
                 await userManager.signOut();               // Desloga o usuário (geralmente limpa dados e token)
                 if (context.mounted)                       // Verifica se o widget ainda existe na árvore (evita erro após async)
                   Navigator.of(context).pop();             // Fecha o Drawer após logout
-              } else {                                     // Usuário não está logado
+              } else {  
+                Navigator.of(context).pop();             // Usuário não está logado
                 Navigator.of(context).pushNamed('/login'); // Navega para a tela de login
               }
             },
