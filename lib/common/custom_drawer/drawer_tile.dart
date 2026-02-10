@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';                   // Importa o Provider
 
 class DrawerTile extends StatelessWidget {                 // Widget sem estado que representa cada item do menu lateral (drawer)
   
-  const DrawerTile({                                      // Construtor constante (boa prática para performance)
+  const DrawerTile({super.key,                                       // Construtor constante (boa prática para performance)
     required this.iconData,                               // Ícone obrigatório (ex: Icons.home)
     required this.title,                                  // Texto do item obrigatório (ex: 'Início')
     required this.page,                                   // Número da página associada a esse item (0, 1, 2...)

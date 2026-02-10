@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';                          // Importa widgets básicos do Flutter (Scaffold, AppBar, ListView, Text, etc.)
-import 'package:flutter/rendering.dart';                         // Importa classes relacionadas a renderização (usado indiretamente em alguns casos)
+// Importa classes relacionadas a renderização (usado indiretamente em alguns casos)
 import 'package:lojavirtual/common/custom_drawer/custom_drawer.dart'; // Importa o Drawer (menu lateral) personalizado do app
 import 'package:lojavirtual/models/product_manager.dart';       // Importa o gerenciador de produtos (ProductManager)
-import 'package:lojavirtual/screens/product/components/product_list_tile.dart'; // Importa o widget que exibe cada produto individualmente
-import 'package:lojavirtual/screens/product/components/search_dialog.dart'; // Importa o diálogo de busca
+import 'package:lojavirtual/screens/products/components/product_list_tile.dart'; // Importa o widget que exibe cada produto individualmente
+import 'package:lojavirtual/screens/products/components/search_dialog.dart'; // Importa o diálogo de busca
 import 'package:provider/provider.dart';                        // Importa o Provider para gerenciamento de estado via contexto
 
 class ProductsScreen extends StatelessWidget {                 // Define a tela de produtos como um widget sem estado (StatelessWidget)

@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';                      // Pacote principal
 // import 'package:flutter/foundation.dart';
 import 'package:lojavirtual/firebase_options.dart';         // Arquivo gerado pelo FlutterFire CLI com as configurações do seu projeto Firebase
 import 'package:lojavirtual/models/page_manager.dart';       // Gerenciador de páginas (controla o PageView da BaseScreen)
+import 'package:lojavirtual/models/product.dart';
 import 'package:lojavirtual/models/product_manager.dart';    // Gerenciador de produtos (carrega produtos do Firestore)
 import 'package:lojavirtual/models/user_manager.dart';       // Gerenciador de usuário (login, logout, dados do usuário logado)
 import 'package:lojavirtual/screens/base/base_screen.dart';  // Tela base com PageView e Drawer (menu lateral)
 import 'package:lojavirtual/screens/login_screen.dart';      // Tela de login
+import 'package:lojavirtual/screens/product/product_screen.dart';
 import 'package:lojavirtual/screens/screens.signup/signup_screen.dart'; // Tela de cadastro (signup)
 import 'package:provider/provider.dart';                     // Pacote de gerenciamento de estado (Provider)
 
@@ -67,6 +69,12 @@ class MyApp extends StatelessWidget {                        // Widget raiz do a
             case '/signup':                                  // Rota para tela de cadastro
               return MaterialPageRoute(
                 builder: (_) => SigUpScreen(),               // Constrói a tela de signup (cadastro)
+              );
+              case '/product':                                  // Rota para tela de cadastro
+              return MaterialPageRoute(
+                builder: (_) => ProductScreen(
+                  settings.arguments as Product
+                ),               // Constrói a tela de signup (cadastro)
               );
             default:                                         // Caso a rota não exista (fallback)
               return MaterialPageRoute(

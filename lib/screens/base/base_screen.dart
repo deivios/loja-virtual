@@ -4,11 +4,13 @@ import 'package:lojavirtual/common/custom_drawer/custom_drawer.dart';
 
 import 'package:lojavirtual/models/page_manager.dart';           // Importa o gerenciador de páginas (PageManager)
 import 'package:lojavirtual/screens/login_screen.dart';          // Importa a tela de login (provavelmente usada em algum lugar, mas não aqui)
-import 'package:lojavirtual/screens/product/products_screen.dart';
+import 'package:lojavirtual/screens/products/products_screen.dart';
 import 'package:provider/provider.dart';                         // Provider para gerenciar estado (neste caso, o PageManager)
 
 class BaseScreen extends StatelessWidget {                     // Tela base do app – usa PageView para navegar entre as páginas sem scroll manual
-  final PageController pageController = PageController();     // Controlador do PageView – permite mudar de página programaticamente
+  final PageController pageController = PageController();
+
+  BaseScreen({super.key});     // Controlador do PageView – permite mudar de página programaticamente
 
   @override
   Widget build(BuildContext context) {

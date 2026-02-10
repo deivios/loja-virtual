@@ -5,6 +5,8 @@ import 'package:lojavirtual/helpers/validators.dart';
 import 'package:lojavirtual/models/user.dart' as model;
 
 class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }

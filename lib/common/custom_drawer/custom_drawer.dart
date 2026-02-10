@@ -6,7 +6,9 @@ import 'package:lojavirtual/common/custom_drawer/custom_drawer_header.dart';
 import 'package:lojavirtual/common/custom_drawer/drawer_tile.dart';           
 // Importa o widget reutilizável que representa cada item do menu (ícone + texto + navegação)
 
-class CustomDrawer extends StatelessWidget {                     // Cria um widget sem estado para o Drawer (menu lateral) – bom para menus estáticos/simples
+class CustomDrawer extends StatelessWidget {
+  const CustomDrawer({super.key});
+                     // Cria um widget sem estado para o Drawer (menu lateral) – bom para menus estáticos/simples
   
   // Não precisa de construtor personalizado → usa o construtor padrão com {super.key}
 

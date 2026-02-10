@@ -4,7 +4,9 @@ import 'package:lojavirtual/models/user.dart' as model;   // Importa o modelo Us
 import 'package:lojavirtual/models/user_manager.dart';    // Importa o gerenciador de usuário (com lógica de autenticação)
 import 'package:provider/provider.dart';                  // Importa o Provider para gerenciamento de estado
 
-class SigUpScreen extends StatefulWidget {               // Classe da tela de cadastro (Stateful porque tem estado mutável)
+class SigUpScreen extends StatefulWidget {
+  const SigUpScreen({super.key});
+               // Classe da tela de cadastro (Stateful porque tem estado mutável)
   @override
   State<SigUpScreen> createState() => _SigUpScreenState(); // Cria o estado associado a esta tela
 }
@@ -119,19 +121,6 @@ class _SigUpScreenState extends State<SigUpScreen> {
                       disabledBackgroundColor: Theme.of(context).primaryColor.withAlpha(100), // Cor quando desabilitado
                       foregroundColor: Colors.white,                                 // Cor do texto/ícone
                     ),
-                    child: isLoading                                   // Mostra spinner ou texto dependendo do estado
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          )
-                        : const Text(
-                            'Criar Conta',
-                            style: TextStyle(fontSize: 18),
-                          ),
                     onPressed: isLoading ? null : () async {  // Desabilita botão durante loading
                       // Valida todos os campos do formulário
                       if (formKey.currentState!.validate()) {
@@ -178,6 +167,19 @@ class _SigUpScreenState extends State<SigUpScreen> {
                         }
                       }
                     },
+                    child: isLoading                                   // Mostra spinner ou texto dependendo do estado
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Text(
+                            'Criar Conta',
+                            style: TextStyle(fontSize: 18),
+                          ),
                     
                   ),
                 ),
