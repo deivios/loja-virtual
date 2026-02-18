@@ -9,6 +9,7 @@ import 'package:lojavirtual/models/user_manager.dart';       // Gerenciador de u
 import 'package:lojavirtual/screens/base/base_screen.dart';  // Tela base com PageView e Drawer (menu lateral)
 import 'package:lojavirtual/screens/login_screen.dart';      // Tela de login
 import 'package:lojavirtual/screens/product/product_screen.dart';
+import 'package:lojavirtual/screens/debug/money_simulator_screen.dart';
 import 'package:lojavirtual/screens/screens.signup/signup_screen.dart'; // Tela de cadastro (signup)
 import 'package:provider/provider.dart';                     // Pacote de gerenciamento de estado (Provider)
 
@@ -75,6 +76,10 @@ class MyApp extends StatelessWidget {                        // Widget raiz do a
                 builder: (_) => ProductScreen(
                   settings.arguments as Product
                 ),               // Constrói a tela de signup (cadastro)
+              );
+            case '/money-sim':
+              return MaterialPageRoute(
+                builder: (_) => const MoneySimulatorScreen(),
               );
             default:                                         // Caso a rota não exista (fallback)
               return MaterialPageRoute(
