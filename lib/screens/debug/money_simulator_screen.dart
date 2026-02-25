@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
-import 'package:lojavirtual/helpers/compact_number_ptbr.dart';
+import 'package:flutter/material.dart';                    // Pacote principal do Flutter
+import 'package:lojavirtual/helpers/compact_number_ptbr.dart';  // Formata números compactos (K, M, B) em pt-BR
 
-class MoneySimulatorScreen extends StatefulWidget {
+class MoneySimulatorScreen extends StatefulWidget {        // Tela de demonstração do formatCompactPtBr
   const MoneySimulatorScreen({super.key});
 
   @override
@@ -9,18 +9,18 @@ class MoneySimulatorScreen extends StatefulWidget {
 }
 
 class _MoneySimulatorScreenState extends State<MoneySimulatorScreen> {
-  static const int _initialCoins = 652050;
-  static const int _targetCoins = 99999999;
+  static const int _initialCoins = 652050;                 // Valor inicial de moedas para teste
+  static const int _targetCoins = 99999999;                // Meta de moedas (exemplo)
 
-  int _coins = _initialCoins;
+  int _coins = _initialCoins;                             // Estado: quantidade atual de moedas
 
   @override
   Widget build(BuildContext context) {
-    final primaryColor = Theme.of(context).colorScheme.primary;
+    final primaryColor = Theme.of(context).colorScheme.primary;  // Cor primária do tema
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Simulador de moedas (local)'),
+        title: const Text('Simulador de moedas (local)'),  // Título da tela
         centerTitle: true,
       ),
       body: Padding(

@@ -1,14 +1,14 @@
-import 'package:lojavirtual/models/user_manager.dart';
-import 'package:provider/provider.dart';
-import 'package:flutter/material.dart';
-import 'package:lojavirtual/helpers/validators.dart';
-import 'package:lojavirtual/models/user.dart' as model;
+import 'package:flutter/material.dart';                      // Pacote principal do Flutter (widgets, temas)
+import 'package:lojavirtual/helpers/validators.dart';        // Funções de validação (email, etc.)
+import 'package:lojavirtual/models/user.dart' as model;      // Modelo User (com prefixo para evitar conflito)
+import 'package:lojavirtual/models/user_manager.dart';       // Gerenciador de autenticação (login, logout)
+import 'package:provider/provider.dart';                     // Provider para acessar UserManager
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends StatefulWidget {                  // Tela de login com email e senha
   const LoginScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<LoginScreen> createState() => _LoginScreenState();   // Cria o estado da tela
 }
 
 class _LoginScreenState extends State<LoginScreen> {

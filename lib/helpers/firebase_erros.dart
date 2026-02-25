@@ -1,4 +1,6 @@
-String getErrorString(String code) {
+// Traduz códigos de erro do Firebase Auth para mensagens em português (exibe na tela de login/cadastro)
+
+String getErrorString(String code) {                      // Traduz códigos de erro do Firebase para mensagens em PT-BR
   switch (code) {
     case 'invalid-credential':
       return 'E-mail ou senha incorretos.';
@@ -31,6 +33,6 @@ String getErrorString(String code) {
       return 'Sem conexão com a internet. Verifique sua rede.';
     
     default:
-      return 'Ocorreu um erro ao fazer login. Tente novamente.';
+      return 'Ocorreu um erro ao fazer login. Tente novamente.';  // Mensagem padrão para erros desconhecidos
   }
 }

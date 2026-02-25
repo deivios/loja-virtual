@@ -29,6 +29,8 @@ class User {                                                // Classe que repres
     );
   }
 
+  get cartReference => null;
+
   // Método assíncrono que salva os dados do usuário no Firestore
   Future<void> saveData() async {                           // Retorna Future<void> (não retorna valor, só executa)
     await FirebaseFirestore.instance                          // Acessa a instância do Firestore

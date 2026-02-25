@@ -12,9 +12,9 @@ class ProductListTile extends StatelessWidget {           // Widget sem estado p
         ? product.images.first                              // Usa a primeira imagem disponível
         : null;                                             // Sem imagens → retorna null para mostrar placeholder
 
-    return GestureDetector(
-      onTap: (){
-        Navigator.of(context).pushNamed('/product', arguments: product);
+    return GestureDetector(                               // Detecta toque para abrir o produto
+      onTap: () {
+        Navigator.of(context).pushNamed('/product', arguments: product);  // Navega para tela de detalhes
       },
       child: Card(                                            // Card cria o efeito visual de cartão com sombra e bordas
         margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6), // Margens externas: 12 horizontal e 6 vertical (espaçamento entre tiles)
@@ -73,8 +73,8 @@ class ProductListTile extends StatelessWidget {           // Widget sem estado p
       
                     const SizedBox(height: 2),                  // Pequeno espaço vertical
       
-                    Text(                                       // Preço fixo (por enquanto hardcoded)
-                      'R\$19,99',
+                    Text(                                       // Preço do produto (effectivePrice = base ou menor dos tamanhos)
+                      _formatBRL(product.effectivePrice),
                       style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w700,            // Negrito
@@ -94,7 +94,7 @@ class ProductListTile extends StatelessWidget {           // Widget sem estado p
   }
 
   String _formatBRL(num value) {                            // Método auxiliar para formatar valores em Real (R$)
-    // Retorna no formato "R$ 19.99" com ponto e 2 casas decimais
-    return 'R\$ ${value.toStringAsFixed(2)}';
+    // Retorna no formato "R$ 19,99" com vírgula (padrão pt-BR)
+    return 'R\$ ${value.toDouble().toStringAsFixed(2).replaceAll('.', ',')}';
   }
 }

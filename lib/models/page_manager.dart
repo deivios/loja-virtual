@@ -1,6 +1,7 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/cupertino.dart'; // PageController e widgets Cupertino
 
 class PageManager {
+  // Gerenciador de páginas do PageView (navegação lateral)
   // Construtor: recebe o PageController que controla o PageView
   PageManager(this.pageController);
 
@@ -13,7 +14,7 @@ class PageManager {
   void setPage(int newPage) {
     if (newPage == page) return; // Se já está na mesma página, não faz nada
 
-    page = newPage;              // Atualiza o número da página atual
+    page = newPage; // Atualiza o número da página atual
     pageController.jumpToPage(newPage); // Muda a tela no PageView
   }
 }

@@ -1,9 +1,9 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';   // Pacote Firestore para banco de dados
 import 'package:firebase_auth/firebase_auth.dart' as auth;  // Importa o Firebase Auth (com prefixo para evitar conflito)
 import 'package:lojavirtual/models/user.dart' as model;     // Importa o modelo User (renomeado para evitar conflito)
 import 'package:lojavirtual/helpers/firebase_erros.dart';   // Importa função que traduz erros do Firebase para PT-BR
 
-class UserManager {
+class UserManager {                                       // Gerenciador de autenticação e dados do usuário
   final auth.FirebaseAuth firebaseAuth = auth.FirebaseAuth.instance;  // Instância única do Firebase Auth (usada em todo o app)
   final FirebaseFirestore firestore = FirebaseFirestore.instance; // Instância do Firestore para acessar banco de dados
 
@@ -11,11 +11,11 @@ class UserManager {
   bool loading = false;                                     // Controla estado de carregamento (spinner, botão desabilitado)
   bool get isLoading => loading;                            // Getter para acessar o loading de forma limpa (ex: na tela)
 
-  bool get isLoggedIn => user != null;
+  bool get isLoggedIn => user != null;                   // True se há usuário logado
 
-  Future<void> signOut() async {
-    await firebaseAuth.signOut();
-    user = null;
+  Future<void> signOut() async {                          // Faz logout do usuário
+    await firebaseAuth.signOut();                        // Desloga no Firebase Auth
+    user = null;                                         // Limpa o usuário em memória
   }
 
   // Método de login com email/senha

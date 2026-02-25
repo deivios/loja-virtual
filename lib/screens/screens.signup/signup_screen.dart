@@ -4,9 +4,8 @@ import 'package:lojavirtual/models/user.dart' as model;   // Importa o modelo Us
 import 'package:lojavirtual/models/user_manager.dart';    // Importa o gerenciador de usuário (com lógica de autenticação)
 import 'package:provider/provider.dart';                  // Importa o Provider para gerenciamento de estado
 
-class SigUpScreen extends StatefulWidget {
+class SigUpScreen extends StatefulWidget {                  // Tela de cadastro de novo usuário
   const SigUpScreen({super.key});
-               // Classe da tela de cadastro (Stateful porque tem estado mutável)
   @override
   State<SigUpScreen> createState() => _SigUpScreenState(); // Cria o estado associado a esta tela
 }

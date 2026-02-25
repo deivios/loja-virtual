@@ -3,7 +3,7 @@ import 'package:lojavirtual/common/custom_drawer/custom_drawer.dart';
 // Importa o Drawer personalizado que criamos anteriormente (menu lateral)
 
 import 'package:lojavirtual/models/page_manager.dart';           // Importa o gerenciador de páginas (PageManager)
-import 'package:lojavirtual/screens/login_screen.dart';          // Importa a tela de login (provavelmente usada em algum lugar, mas não aqui)
+// Importa a tela de login (provavelmente usada em algum lugar, mas não aqui)
 import 'package:lojavirtual/screens/products/products_screen.dart';
 import 'package:provider/provider.dart';                         // Provider para gerenciar estado (neste caso, o PageManager)
 
@@ -37,8 +37,7 @@ class BaseScreen extends StatelessWidget {                     // Tela base do a
             ),
             // body: ... aqui vai o conteúdo real da página Home (provavelmente um Center, ListView, GridView, etc.)
           ),
-          ProductsScreen(),
-          // Página 1
+          ProductsScreen(),                                // Página 1 - Lista de produtos
           Scaffold(
             backgroundColor: Colors.blueAccent,
             drawer: CustomDrawer(),
@@ -49,7 +48,7 @@ class BaseScreen extends StatelessWidget {                     // Tela base do a
             // body: ...
           ),
 
-          // Página 2
+          // Página 2 - Meus Pedidos
           Scaffold(
             backgroundColor: Colors.blueAccent,
             drawer: CustomDrawer(),
@@ -60,7 +59,7 @@ class BaseScreen extends StatelessWidget {                     // Tela base do a
             // body: ...
           ),
 
-          // Página 3
+          // Página 3 - Lojas
           Scaffold(
             backgroundColor: Colors.blueAccent,
             drawer: CustomDrawer(),
@@ -71,7 +70,7 @@ class BaseScreen extends StatelessWidget {                     // Tela base do a
             // body: ...
           ),
 
-          // Página 4
+          // Página 4 - Carrinho
           Scaffold(
             backgroundColor: Colors.blueAccent,
             drawer: CustomDrawer(),

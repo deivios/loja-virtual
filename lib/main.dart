@@ -3,13 +3,15 @@ import 'package:flutter/material.dart';                      // Pacote principal
 // import 'package:flutter/foundation.dart';
 import 'package:lojavirtual/firebase_options.dart';         // Arquivo gerado pelo FlutterFire CLI com as configurações do seu projeto Firebase
 import 'package:lojavirtual/models/page_manager.dart';       // Gerenciador de páginas (controla o PageView da BaseScreen)
-import 'package:lojavirtual/models/product.dart';
+import 'package:lojavirtual/models/cart_manager.dart';        // Gerenciador do carrinho de compras
+import 'package:lojavirtual/models/product.dart';             // Modelo Product (produto com tamanhos, preços)
 import 'package:lojavirtual/models/product_manager.dart';    // Gerenciador de produtos (carrega produtos do Firestore)
 import 'package:lojavirtual/models/user_manager.dart';       // Gerenciador de usuário (login, logout, dados do usuário logado)
 import 'package:lojavirtual/screens/base/base_screen.dart';  // Tela base com PageView e Drawer (menu lateral)
+import 'package:lojavirtual/screens/cart_screen.dart';
 import 'package:lojavirtual/screens/login_screen.dart';      // Tela de login
-import 'package:lojavirtual/screens/product/product_screen.dart';
-import 'package:lojavirtual/screens/debug/money_simulator_screen.dart';
+import 'package:lojavirtual/screens/product/product_screen.dart';  // Tela de detalhes do produto
+import 'package:lojavirtual/screens/debug/money_simulator_screen.dart';  // Tela de simulação financeira
 import 'package:lojavirtual/screens/screens.signup/signup_screen.dart'; // Tela de cadastro (signup)
 import 'package:provider/provider.dart';                     // Pacote de gerenciamento de estado (Provider)
 
@@ -39,13 +41,21 @@ class MyApp extends StatelessWidget {                        // Widget raiz do a
           create: (_) => UserManager(),                      // Cria instância do UserManager
           lazy: false,                                       // Carrega imediatamente (não espera ser usado)
         ),
-        Provider(                                            // Provider para PageManager
-          create: (_) => PageManager(PageController()),  
-          lazy: false,  // Cria PageManager passando um PageController novo
+        Provider(                                            // Provider para PageManager (controla navegação do PageView)
+          create: (_) => PageManager(PageController()),      // Cria PageManager passando um PageController novo
+          lazy: false,                                       // Carrega imediatamente
         ),
         ChangeNotifierProvider(                              // ProductManager é ChangeNotifier, então precisa desse provider
           create: (_) => ProductManager(),                   // Cria instância do ProductManager
           lazy: false,                                       // Carrega imediatamente (ex: já faz fetch dos produtos)
+        ),
+        ChangeNotifierProxyProvider<UserManager, CartManager>( // Provider para CartManager (ChangeNotifier que depende de UserManager)
+          create: (_) => CartManager(),                     // Cria CartManager na primeira vez
+          update: (_, userManager, cartManager) {            // Atualiza quando UserManager muda
+            final manager = cartManager ?? CartManager();   // Reutiliza o anterior ou cria novo
+            manager.updateUser(userManager);                // Atualiza o usuário no carrinho
+            return manager;                                // Retorna o CartManager
+          },
         ),
       ],
       child: MaterialApp(                                    // Widget raiz do Material Design – configura tema, rotas, etc.
@@ -71,11 +81,15 @@ class MyApp extends StatelessWidget {                        // Widget raiz do a
               return MaterialPageRoute(
                 builder: (_) => SigUpScreen(),               // Constrói a tela de signup (cadastro)
               );
-              case '/product':                                  // Rota para tela de cadastro
+            case '/product':                                 // Rota para tela de detalhes do produto
               return MaterialPageRoute(
                 builder: (_) => ProductScreen(
-                  settings.arguments as Product
-                ),               // Constrói a tela de signup (cadastro)
+                  settings.arguments as Product               // Product passado como argumento ao navegar
+                ),
+              );
+            case '/cart':                                    // Rota para tela do carrinho de compras
+              return MaterialPageRoute(
+                builder: (_) => CartScreen(),                // Constrói a tela do carrinho
               );
             case '/money-sim':
               return MaterialPageRoute(
