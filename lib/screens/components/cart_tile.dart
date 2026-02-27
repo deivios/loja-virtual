@@ -18,7 +18,10 @@ class CartTile extends StatelessWidget {
               height: 80,
               width: 80,
               child: cartProduct.product.images.isNotEmpty
-                  ? Image.network( cartProduct.product.images.first, fit: BoxFit.cover)
+                  ? Image.network(
+                      cartProduct.product.images.first,
+                      fit: BoxFit.cover,
+                    )
                   : Container(
                       color: Colors.grey[300],
                       child: const Icon(Icons.image, color: Colors.grey),
@@ -33,7 +36,10 @@ class CartTile extends StatelessWidget {
                   children: [
                     Text(
                       cartProduct.product.name,
-                      style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w500),
+                      style: const TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w500,
+                      ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -46,7 +52,10 @@ class CartTile extends StatelessWidget {
                     ),
                     Text(
                       _formatPrice(cartProduct),
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ],
                 ),
