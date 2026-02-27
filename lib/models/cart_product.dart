@@ -1,55 +1,39 @@
-import 'package:cloud_firestore/cloud_firestore.dart'; // Pacote Firestore para DocumentSnapshot
-import 'package:lojavirtual/models/item_size.dart'; // Importa o modelo ItemSize (tamanho com nome, preço, estoque)
-import 'package:lojavirtual/models/product.dart'; // Importa o modelo Product (produto com nome, preço, tamanhos)
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:lojavirtual/models/item_size.dart';
+import 'package:lojavirtual/models/product.dart';
 
 class CartProduct {
-  // Classe que representa um produto no carrinho de compras
-  CartProduct.fromProduct(
-    this.product,
-  ) // Construtor: cria CartProduct a partir de um Product
-  : productId =
-          product.id, // Guarda o ID do produto (para identificar no Firestore)
-      quantity = 1, // Quantidade inicial ao adicionar no carrinho
-      size = product
-          .selectedSize!
-          .name; // Nome do tamanho selecionado (P, M, GG) – exige que tenha tamanho
+  final String productId;
+  int quantity;
+  final String size;
+  final Product product;
 
-  CartProduct._({
-    required this.productId,
-    required this.quantity,
-    required this.size,
-    required this.product,
-  }); // Construtor privado para fromDocument
+  CartProduct.fromProduct(Product product)
+      : product = product,
+        productId = product.id,
+        quantity = 1,
+        size = product.selectedSize!.name;
 
-  factory CartProduct.fromDocument(DocumentSnapshot doc, Product product) {
-    // Cria CartProduct a partir de documento do Firestore
-    final data = doc.data() as Map<String, dynamic>? ?? {};
-    return CartProduct._(
-      productId: product.id, // ID do produto
-      quantity: (data['quantity'] ?? 1) as int, // Quantidade do documento
-      size: (data['size'] ?? '') as String, // Tamanho do documento
-      product: product, // Product completo
-    );
-  }
-
-  final String productId; // ID do produto no Firestore
-  int quantity; // Quantidade deste item no carrinho
-  final String size; // Tamanho escolhido (ex: "P", "M", "GG")
-  final Product
-  product; // Referência ao Product completo (nome, imagens, preços)
+  CartProduct.fromDocument(DocumentSnapshot doc, Product product)
+      : product = product,
+        productId = product.id,
+        quantity = (doc.data() as Map<String, dynamic>? ?? {})['quantity'] as int? ?? 1,
+        size = (doc.data() as Map<String, dynamic>? ?? {})['size'] as String? ?? '';
 
   ItemSize? get itemSize {
-    // Getter que retorna o ItemSize correspondente ao tamanho do carrinho
-    if (product.sizes.isEmpty) return null; // Se não tem tamanhos, retorna null
-    return product.findSize(
-      size,
-    ); // Usa o método findSize do Product para buscar pelo nome
+    if (product.sizes.isEmpty) return null;
+    return product.findSize(size);
   }
 
-  num get unitPrice {
-    // Getter que retorna o preço unitário deste item
-    return itemSize?.price ??
-        product
-            .effectivePrice; // Preço do tamanho ou preço efetivo se itemSize for null
+  num get unitPrice => itemSize?.price ?? product.effectivePrice;
+
+  bool stackable(Product product) {
+    return productId == product.id && size == (product.selectedSize?.name ?? '');
   }
+
+  Map<String, dynamic> toCartItemMap() => {
+        'pid': productId,
+        'quantity': quantity,
+        'size': size,
+      };
 }

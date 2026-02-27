@@ -1,110 +1,109 @@
-import 'package:cloud_firestore/cloud_firestore.dart'; // Pacote Firestore para acessar coleção do carrinho
-import 'package:flutter/foundation.dart'; // ChangeNotifier para notificar mudanças na UI
-import 'package:lojavirtual/models/cart_product.dart'; // Modelo CartProduct (produto no carrinho)
-import 'package:lojavirtual/models/product.dart'; // Modelo Product (produto com tamanhos, preços)
-import 'package:lojavirtual/models/user.dart'; // Modelo User (dados do usuário)
-import 'package:lojavirtual/models/user_manager.dart'; // Gerenciador de usuário (login, logout)
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
+import 'package:lojavirtual/models/cart_product.dart';
+import 'package:lojavirtual/models/product.dart';
+import 'package:lojavirtual/models/user.dart';
+import 'package:lojavirtual/models/user_manager.dart';
 
 class CartManager extends ChangeNotifier {
-  // Gerenciador do carrinho de compras
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  List<CartProduct> items = [];
+  User? user;
+  UserManager? _userManager;
+  int _loadVersion = 0;
 
-  final FirebaseFirestore _firestoreRef =
-      FirebaseFirestore.instance; // Instância do Firestore
+  Future<void> addToCart(Product product) async {
+    final cartProduct = CartProduct.fromProduct(product);
+    user = _userManager?.user;
 
-  CollectionReference get cartReference => _firestoreRef.collection(
-    'cart',
-  ); // Referência à coleção 'cart' (top-level)
+    if (user == null) {
+      items.add(cartProduct);
+      _loadVersion++;
+      notifyListeners();
+      return;
+    }
 
-  CollectionReference
-  get _userCartReference => // Referência ao carrinho do usuário logado (users/{userId}/cart)
-      _firestoreRef.collection('users').doc(user!.id).collection('cart');
+    try {
+      final query = await user!.cartReference.where('pid', isEqualTo: cartProduct.productId).get();
+      QueryDocumentSnapshot? existingDoc;
 
-  List<CartProduct> items =
-      []; // Lista de itens no carrinho (produto + quantidade + tamanho)
-  User? user; // Usuário atual logado (null se não estiver logado)
-  UserManager?
-  _userManager; // Referência ao UserManager (injetada pelo ProxyProvider)
-  int _loadVersion =
-      0; // Evita que _loadCartItems sobrescreva itens adicionados localmente
+      for (final doc in query.docs) {
+        final data = doc.data() as Map<String, dynamic>? ?? {};
+        if ((data['size'] ?? '') == cartProduct.size) {
+          existingDoc = doc;
+          break;
+        }
+      }
 
-  void addToCart(Product product) {
-    // Adiciona um produto ao carrinho
-    items.add(
-      CartProduct.fromProduct(product),
-    ); // Cria CartProduct a partir do Product e adiciona na lista
-    user =
-        _userManager?.user; // Atualiza referência ao usuário atual (se logado)
-    _loadVersion++; // Incrementa para evitar que _loadCartItems sobrescreva
-    notifyListeners(); // Notifica a UI da mudança
+      if (existingDoc != null) {
+        final data = existingDoc.data() as Map<String, dynamic>? ?? {};
+        final currentQty = (data['quantity'] ?? 1) as int;
+        await existingDoc.reference.update({'quantity': currentQty + 1});
+
+        final idx = items.indexWhere((i) => i.stackable(product));
+        if (idx >= 0) {
+          items[idx].quantity++;
+        } else {
+          cartProduct.quantity = currentQty + 1;
+          items.add(cartProduct);
+        }
+      } else {
+        await user!.cartReference.add(cartProduct.toCartItemMap());
+        items.add(cartProduct);
+      }
+      _loadVersion++;
+      notifyListeners();
+    } on FirebaseException catch (e) {
+      debugPrint('[CartManager] Erro Firestore: ${e.code} - ${e.message}');
+      items.add(cartProduct);
+      _loadVersion++;
+      notifyListeners();
+    } catch (e, st) {
+      debugPrint('[CartManager] Erro: $e');
+      debugPrint('$st');
+      items.add(cartProduct);
+      _loadVersion++;
+      notifyListeners();
+    }
   }
 
   void updateUser(UserManager userManager) {
-    // Chamado pelo ProxyProvider quando UserManager muda
-    final previousUserId =
-        user?.id; // Guarda o ID do usuário anterior para detectar troca
-    _userManager = userManager; // Armazena referência ao UserManager
-    user = userManager
-        .user; // Atualiza o usuário atual (pode ser null ao deslogar)
-
-    if (user?.id != previousUserId) {
-      // Só limpa e recarrega quando o usuário muda (login/logout/troca)
-      items.clear(); // Limpa o carrinho ao trocar de usuário
-      if (user != null) {
-        _loadCartItems(); // Carrega itens do Firestore (assíncrono)
-      } else {
-        notifyListeners(); // Notifica quando desloga (items já está vazio)
-      }
+    _userManager = userManager;
+    user = userManager.user;
+    items.clear();
+    if (user != null) {
+      _loadCartItems();
+    } else {
+      notifyListeners();
     }
   }
 
   Future<void> _loadCartItems() async {
-    // Carrega itens do carrinho do Firestore
     if (user == null) return;
-    final loadVersion =
-        ++_loadVersion; // Marca esta carga para evitar sobrescrever itens adicionados depois
+    final loadVersion = ++_loadVersion;
+
     try {
-      final QuerySnapshot cartSnap = await _userCartReference
-          .get(); // Busca documentos da coleção cart do usuário
-      final List<CartProduct> loadedItems = [];
+      final cartSnap = await user!.cartReference.get();
+      final loadedItems = <CartProduct>[];
+
       for (final doc in cartSnap.docs) {
-        // Para cada documento do carrinho
         final data = doc.data() as Map<String, dynamic>? ?? {};
-        final productId =
-            data['productId'] as String? ??
-            doc.id; // ID do produto (campo productId ou id do doc)
-        final productDoc = await _firestoreRef
-            .collection('products')
-            .doc(productId)
-            .get(); // Busca o Product
+        final productId = (data['productId'] ?? data['pid']) as String? ?? doc.id;
+
+        final productDoc = await _firestore.collection('products').doc(productId).get();
         if (productDoc.exists) {
-          final product = Product.fromDocument(
-            productDoc,
-          ); // Cria Product a partir do documento
-          loadedItems.add(
-            CartProduct.fromDocument(doc, product),
-          ); // Cria CartProduct e adiciona na lista
+          final product = Product.fromDocument(productDoc);
+          loadedItems.add(CartProduct.fromDocument(doc, product));
         }
       }
+
       if (loadVersion == _loadVersion) {
-        // Só sobrescreve se não houve addToCart durante o carregamento
-        items = loadedItems; // Atualiza a lista de itens
-        notifyListeners(); // Notifica a UI para reconstruir
+        items = loadedItems;
+        notifyListeners();
       }
     } on FirebaseException catch (e) {
-      // Trata erro de permissão ou conexão do Firestore
-      if (e.code == 'permission-denied') {
-        // Se não tem permissão, mantém items em memória (não sobrescreve)
-        debugPrint(
-          '[CartManager] permission-denied ao carregar carrinho: ${e.message}',
-        );
-      } else {
-        debugPrint(
-          '[CartManager] Erro ao carregar carrinho: ${e.code} - ${e.message}',
-        );
-      }
-      if (loadVersion == _loadVersion) {
-        notifyListeners(); // Notifica para atualizar UI (items pode estar vazio)
-      }
+      debugPrint('[CartManager] Erro ao carregar: ${e.code} - ${e.message}');
+      if (loadVersion == _loadVersion) notifyListeners();
     }
   }
 }
