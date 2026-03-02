@@ -1,8 +1,11 @@
-import 'package:flutter/material.dart';
-import 'package:lojavirtual/helpers/validators.dart';
-import 'package:lojavirtual/models/user.dart' as model;
-import 'package:lojavirtual/models/user_manager.dart';
-import 'package:provider/provider.dart';
+// ========== LOGIN_SCREEN.DART - Tela de login ==========
+// Email + senha. Valida, chama signIn. SnackBar verde/vermelho. CRIAR CONTA -> /signup.
+
+import 'package:flutter/material.dart'; // Scaffold, Form, TextFormField, etc.
+import 'package:lojavirtual/helpers/validators.dart'; // emailValid
+import 'package:lojavirtual/models/user.dart' as model; // model.User
+import 'package:lojavirtual/models/user_manager.dart'; // UserManager, signIn
+import 'package:provider/provider.dart'; // context.read
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -12,25 +15,25 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passController = TextEditingController();
-  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-  bool isLoading = false;
-  String? errorMessage;
+  final TextEditingController emailController = TextEditingController(); // Controla campo email
+  final TextEditingController passController = TextEditingController(); // Controla campo senha
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>(); // Para validate()
+  bool isLoading = false; // true durante login
+  String? errorMessage; // Mensagem de erro do Firebase
 
   @override
   void dispose() {
-    emailController.dispose();
+    emailController.dispose(); // Libera memória
     passController.dispose();
     super.dispose();
   }
 
-  Future<void> _handleLogin() async {
-    if (!formKey.currentState!.validate()) return;
+  Future<void> _handleLogin() async { // Chamado ao clicar em Entrar
+    if (!formKey.currentState!.validate()) return; // Valida campos (retorna se inválido)
 
     setState(() {
       isLoading = true;
-      errorMessage = null;
+      errorMessage = null; // Limpa erro anterior
     });
 
     final error = await context.read<UserManager>().signIn(
@@ -41,7 +44,7 @@ class _LoginScreenState extends State<LoginScreen> {
         confirmPassword: '',
         id: '',
       ),
-    );
+    ); // signIn retorna null se sucesso
 
     setState(() {
       isLoading = false;
@@ -56,7 +59,7 @@ class _LoginScreenState extends State<LoginScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Login realizado com sucesso!'), backgroundColor: Colors.green, duration: Duration(seconds: 2)),
       );
-      if (context.mounted) Navigator.of(context).pop();
+      if (context.mounted) Navigator.of(context).pop(); // Fecha tela de login
     }
   }
 
@@ -68,7 +71,7 @@ class _LoginScreenState extends State<LoginScreen> {
         centerTitle: true,
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pushNamed('/signup'),
+            onPressed: () => Navigator.of(context).pushNamed('/signup'), // Vai para tela de cadastro
             child: const Text('CRIAR CONTA', style: TextStyle(fontSize: 14, color: Colors.white)),
           ),
         ],
@@ -84,7 +87,7 @@ class _LoginScreenState extends State<LoginScreen> {
               padding: const EdgeInsets.all(16),
               shrinkWrap: true,
               children: [
-                TextFormField(
+                TextFormField( // Campo email
                   controller: emailController,
                   decoration: const InputDecoration(hintText: 'E-mail'),
                   keyboardType: TextInputType.emailAddress,
@@ -92,22 +95,22 @@ class _LoginScreenState extends State<LoginScreen> {
                   validator: (email) => emailValid(email!) ? null : 'E-mail inválido',
                 ),
                 const SizedBox(height: 16),
-                TextFormField(
+                TextFormField( // Campo senha
                   controller: passController,
                   decoration: const InputDecoration(hintText: 'Senha'),
-                  obscureText: true,
+                  obscureText: true, // Esconde caracteres (bolinhas)
                   autocorrect: false,
-                  validator: (pass) => (pass!.isEmpty || pass.length < 6) ? 'Senha Inválida' : null,
+                  validator: (pass) => (pass!.isEmpty || pass.length < 6) ? 'Senha Inválida' : null, // Mín 6 chars
                 ),
                 Align(
                   alignment: Alignment.centerRight,
                   child: TextButton(
-                    onPressed: () {},
+                    onPressed: () {}, // TODO: recuperação de senha
                     style: TextButton.styleFrom(padding: EdgeInsets.zero),
                     child: const Text('Esqueci minha senha'),
                   ),
                 ),
-                if (errorMessage != null) ...[
+                if (errorMessage != null) ...[ // Caixa de erro (se houver)
                   const SizedBox(height: 8),
                   Container(
                     padding: const EdgeInsets.all(12),
@@ -129,7 +132,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 SizedBox(
                   height: 44,
                   child: ElevatedButton(
-                    onPressed: isLoading ? null : _handleLogin,
+                    onPressed: isLoading ? null : _handleLogin, // Desabilita durante loading
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Theme.of(context).primaryColor,
                       foregroundColor: Colors.white,

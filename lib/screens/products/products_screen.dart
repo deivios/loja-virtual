@@ -1,41 +1,44 @@
-import 'package:flutter/material.dart';
-import 'package:lojavirtual/common/custom_drawer/custom_drawer.dart';
-import 'package:lojavirtual/models/product_manager.dart';
-import 'package:lojavirtual/screens/products/components/product_list_tile.dart';
-import 'package:lojavirtual/screens/products/components/search_dialog.dart';
-import 'package:provider/provider.dart';
+// ========== PRODUCTS_SCREEN.DART - Lista de produtos ==========
+// Loading, erro ou lista. Título = busca. Lupa/X. FAB carrinho.
 
-class ProductsScreen extends StatelessWidget {
+import 'package:flutter/material.dart'; // Scaffold, AppBar, ListView, etc.
+import 'package:lojavirtual/common/custom_drawer/custom_drawer.dart'; // Menu lateral
+import 'package:lojavirtual/models/product_manager.dart'; // ProductManager
+import 'package:lojavirtual/screens/products/components/product_list_tile.dart'; // ProductListTile
+import 'package:lojavirtual/screens/products/components/search_dialog.dart'; // SearchDialog
+import 'package:provider/provider.dart'; // context.watch, context.read, Consumer
+
+class ProductsScreen extends StatelessWidget { // Widget sem estado
   const ProductsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final pm = context.watch<ProductManager>();
-    final products = pm.filteredProducts;
+    final pm = context.watch<ProductManager>(); // Escuta mudanças (loading, error, search)
+    final products = pm.filteredProducts; // Lista filtrada pela busca
 
     return Scaffold(
-      backgroundColor: Colors.blueAccent,
-      drawer: CustomDrawer(),
+      backgroundColor: Colors.blueAccent, // Cor de fundo azul
+      drawer: CustomDrawer(), // Menu lateral
       appBar: AppBar(
         backgroundColor: Colors.blueAccent,
-        iconTheme: const IconThemeData(color: Colors.white),
+        iconTheme: const IconThemeData(color: Colors.white), // Ícone hambúrguer branco
         title: Consumer<ProductManager>(
           builder: (_, productManager, __) {
             if (productManager.search.isEmpty) {
-              return const Text('Produtos', style: TextStyle(color: Colors.white));
+              return const Text('Produtos', style: TextStyle(color: Colors.white)); // Título padrão
             }
-            return GestureDetector(
+            return GestureDetector( // Título clicável quando há busca
               onTap: () async {
                 final search = await showDialog<String>(context: context, builder: (_) => const SearchDialog());
-                if (search != null) productManager.search = search;
+                if (search != null) productManager.search = search; // Atualiza busca
               },
               child: LayoutBuilder(
                 builder: (_, constraints) => SizedBox(
-                  width: constraints.maxWidth,
+                  width: constraints.maxWidth, // Ocupa largura disponível
                   child: Text(
-                    productManager.search,
+                    productManager.search, // Mostra texto da busca
                     maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                    overflow: TextOverflow.ellipsis, // Corta com "..." se longo
                     style: const TextStyle(color: Colors.white),
                     textAlign: TextAlign.center,
                   ),
@@ -44,13 +47,13 @@ class ProductsScreen extends StatelessWidget {
             );
           },
         ),
-        centerTitle: true,
+        centerTitle: true, // Centraliza título
         actions: [
           Consumer<ProductManager>(
             builder: (context, productManager, _) {
               if (productManager.search.isEmpty) {
                 return IconButton(
-                  icon: const Icon(Icons.search),
+                  icon: const Icon(Icons.search), // Ícone lupa
                   onPressed: () async {
                     final search = await showDialog<String>(context: context, builder: (_) => const SearchDialog());
                     if (search != null) productManager.search = search;
@@ -58,17 +61,17 @@ class ProductsScreen extends StatelessWidget {
                 );
               }
               return IconButton(
-                icon: const Icon(Icons.close),
-                onPressed: () => context.read<ProductManager>().search = '',
+                icon: const Icon(Icons.close), // Ícone X
+                onPressed: () => context.read<ProductManager>().search = '', // Limpa busca
               );
             },
           ),
         ],
       ),
       body: pm.loading
-          ? const Center(child: CircularProgressIndicator(color: Colors.white))
+          ? const Center(child: CircularProgressIndicator(color: Colors.white)) // Loading: spinner branco
           : pm.error != null
-              ? Center(
+              ? Center( // Erro: mensagem + botão retry
                   child: Padding(
                     padding: const EdgeInsets.all(16),
                     child: Column(
@@ -79,7 +82,7 @@ class ProductsScreen extends StatelessWidget {
                         SizedBox(
                           height: 44,
                           child: ElevatedButton(
-                            onPressed: () => context.read<ProductManager>().retry(),
+                            onPressed: () => context.read<ProductManager>().retry(), // Tenta carregar de novo
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.white,
                               foregroundColor: Colors.blueAccent,
@@ -92,15 +95,15 @@ class ProductsScreen extends StatelessWidget {
                   ),
                 )
               : products.isEmpty
-                  ? const Center(child: Text('Nenhum produto encontrado', style: TextStyle(color: Colors.white)))
-                  : ListView.builder(
+                  ? const Center(child: Text('Nenhum produto encontrado', style: TextStyle(color: Colors.white))) // Lista vazia
+                  : ListView.builder( // Lista de produtos
                       itemCount: products.length,
                       itemBuilder: (_, index) => ProductListTile(products[index]),
                     ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: FloatingActionButton( // Botão flutuante do carrinho
         backgroundColor: Colors.white,
         foregroundColor: Theme.of(context).primaryColor,
-        onPressed: () => Navigator.of(context).pushNamed('/cart'),
+        onPressed: () => Navigator.of(context).pushNamed('/cart'), // Vai para tela do carrinho
         child: const Icon(Icons.shopping_cart),
       ),
     );

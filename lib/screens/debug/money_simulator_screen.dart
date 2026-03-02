@@ -1,3 +1,6 @@
+// ========== MONEY_SIMULATOR_SCREEN.DART - Demo formatCompactPtBr ==========
+// Testa formatação K, M, B. Ex: 652050 -> "652,1K", 99999999 -> "100M".
+
 import 'package:flutter/material.dart';
 import 'package:lojavirtual/helpers/compact_number_ptbr.dart';
 
@@ -15,7 +18,7 @@ class _MoneySimulatorScreenState extends State<MoneySimulatorScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final primaryColor = Theme.of(context).colorScheme.primary;
+    final primaryColor = Theme.of(context).colorScheme.primary; // Cor primária (azul)
     return Scaffold(
       appBar: AppBar(title: const Text('Simulador de moedas'), centerTitle: true),
       body: Padding(
@@ -23,15 +26,15 @@ class _MoneySimulatorScreenState extends State<MoneySimulatorScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Valor local formatado em K, M, B.', style: TextStyle(color: Colors.grey)),
+            const Text('Valor local formatado em K, M, B.', style: TextStyle(color: Colors.grey)), // Texto cinza
             const SizedBox(height: 16),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              decoration: BoxDecoration(color: Colors.black12, borderRadius: BorderRadius.circular(16)),
+              decoration: BoxDecoration(color: Colors.black12, borderRadius: BorderRadius.circular(16)), // Fundo cinza claro (black12)
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.monetization_on_rounded, color: primaryColor),
+                  Icon(Icons.monetization_on_rounded, color: primaryColor), // Ícone azul
                   const SizedBox(width: 8),
                   Text(formatCompactPtBr(_coins), style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700)),
                 ],

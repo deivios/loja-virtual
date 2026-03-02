@@ -1,83 +1,168 @@
-import 'package:flutter/material.dart';
-import 'package:lojavirtual/models/cart_product.dart';
+// ========== CART_TILE.DART - Widget de um item do carrinho ==========
+// Card: imagem, nome, tamanho, preço total. Usado na CartScreen.
+
+import 'package:flutter/material.dart'; // Card, Padding, Row, SizedBox, Image, Text
+import 'package:lojavirtual/common/custom_icon_button.dart'; // CustomIconButton
+import 'package:lojavirtual/models/cart_product.dart'; // CartProduct
+import 'package:provider/provider.dart'; // Consumer, Provider
 
 class CartTile extends StatelessWidget {
-  const CartTile(this.cartProduct, {super.key});
+  // Widget sem estado
+  const CartTile(this.cartProduct, {super.key}); // Recebe CartProduct
+  final CartProduct cartProduct; // Item do carrinho
 
-  final CartProduct cartProduct;
-
-  @override
+  @override // Sobrescreve build do StatelessWidget
   Widget build(BuildContext context) {
+    // Constrói o widget
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      // Card com sombra
+      margin: const EdgeInsets.symmetric(
+        // Margem externa
+        horizontal: 16, // 16px nas laterais
+        vertical: 4, // 4px em cima e embaixo
+      ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        // Espaço interno
+        padding: const EdgeInsets.symmetric(
+          horizontal: 16, // 16px nas laterais
+          vertical: 8, // 8px em cima e embaixo
+        ),
         child: Row(
+          // Layout horizontal: imagem à esquerda, textos à direita
           children: [
+            // Lista de widgets da linha
             SizedBox(
-              height: 80,
-              width: 80,
-              child: cartProduct.product.images.isNotEmpty
+              // Área fixa para a imagem
+              height: 80, // Altura fixa
+              width: 80, // Largura fixa
+              child:
+                  cartProduct
+                      .product
+                      .images
+                      .isNotEmpty // Se tem imagens
                   ? Image.network(
-                      cartProduct.product.images.first,
-                      fit: BoxFit.cover,
+                      // Carrega imagem da URL
+                      cartProduct.product.images.first, // Primeira imagem
+                      fit: BoxFit.cover, // Preenche mantendo proporção
                     )
                   : Container(
-                      color: Colors.grey[300],
-                      child: const Icon(Icons.image, color: Colors.grey),
+                      // Placeholder quando não tem imagem
+                      color: Colors.grey[300], // Cinza claro
+                      child: const Icon(
+                        // Ícone de imagem
+                        Icons.image, // Ícone padrão
+                        color: Colors.grey, // Cor cinza
+                      ),
                     ),
             ),
             Expanded(
+              // Ocupa espaço restante
               child: Padding(
-                padding: const EdgeInsets.only(left: 16),
+                // Espaço entre imagem e textos
+                padding: const EdgeInsets.only(left: 16), // 16px à esquerda
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
+                  // Coluna de textos
+                  crossAxisAlignment:
+                      CrossAxisAlignment.start, // Alinha à esquerda
+                  mainAxisSize: MainAxisSize.min, // Só o tamanho necessário
                   children: [
                     Text(
+                      // Nome do produto
                       cartProduct.product.name,
                       style: const TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.w500,
+                        // Estilo do texto
+                        fontSize: 17, // Tamanho da fonte
+                        fontWeight: FontWeight.w500, // Peso médio
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1, // Uma linha só
+                      overflow:
+                          TextOverflow.ellipsis, // Corta com "..." se longo
                     ),
                     Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      // Padding vertical
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 8,
+                      ), // 8px em cima e embaixo
                       child: Text(
-                        'Tamanho: ${cartProduct.size}',
-                        style: const TextStyle(fontWeight: FontWeight.w300),
+                        // Texto do tamanho
+                        'Tamanho: ${cartProduct.size}', // P, M, GG
+                        style: const TextStyle(
+                          // Peso leve
+                          fontWeight: FontWeight.w300,
+                        ),
                       ),
                     ),
-                    Text(
-                      _formatPrice(cartProduct),
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                    Provider<CartProduct>.value(
+                      value: cartProduct,
+                      child: Consumer<CartProduct>(
+                        builder: (_, cp, __) {
+                          if (cp.hasStock) {
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              child: Text(
+                                'R\$ ${cp.totalPrice.toStringAsFixed(2).replaceAll('.', ',')}',
+                                style: TextStyle(
+                                  color: Theme.of(context).primaryColor,
+                                  fontSize: 16.0,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            );
+                          } else {
+                            return const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 8),
+                              child: Text(
+                                'Sem estoque suficiente',
+                                style: TextStyle(
+                                  color: Colors.red,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            );
+                          }
+                        },
                       ),
                     ),
                   ],
                 ),
               ),
             ),
+            Column(
+              // Coluna: botão +, quantidade, botão -
+              children: <Widget>[
+                // Botões e quantidade
+                CustomIconButton(
+                  // Botão para adicionar quantidade
+                  iconData: Icons.add, // Ícone de mais
+                  color: Theme.of(context).primaryColor, // Cor primária do tema
+                  onTap: cartProduct.increment, // Chama increment ao tocar
+                ),
+                Text(
+                  // Exibe a quantidade
+                  '${cartProduct.quantity}',
+                  style: const TextStyle(fontSize: 20), // Fonte maior
+                ),
+                CustomIconButton(
+                  // Botão para remover quantidade
+                  iconData: Icons.remove, // Ícone de menos
+                  color: cartProduct.quantity > 1
+                      ? Theme.of(context)
+                            .primaryColor // Cor normal se tem mais de 1
+                      : Colors
+                            .red, // Vermelho quando última unidade (remove do carrinho)
+                  onTap: cartProduct.decrement, // Chama decrement ao tocar
+                ),
+              ],
+            ),
+            CustomIconButton(
+              // Botão para remover item do carrinho
+              iconData: Icons.delete_outline, // Ícone de lixeira
+              color: Colors.red, // Cor vermelha
+              onTap: cartProduct.remove, // Remove item por completo
+            ),
           ],
         ),
       ),
     );
-  }
-
-  String _formatPrice(CartProduct cp) {
-    if (cp.product.sizes.isEmpty) {
-      final total = cp.product.effectivePrice * cp.quantity;
-      return 'R\$ ${total.toStringAsFixed(2).replaceAll('.', ',')}';
-    }
-    final itemSize = cp.itemSize;
-    if (itemSize == null) {
-      final total = cp.product.effectivePrice * cp.quantity;
-      return 'R\$ ${total.toStringAsFixed(2).replaceAll('.', ',')}';
-    }
-    final total = itemSize.price * cp.quantity;
-    return 'R\$ ${total.toStringAsFixed(2).replaceAll('.', ',')}';
   }
 }
