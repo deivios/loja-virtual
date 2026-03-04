@@ -21,8 +21,9 @@ class SizeWidget extends StatelessWidget {
     return GestureDetector(
       // Área clicável
       onTap: () {
-        if (size.hasStock)
+        if (size.hasStock) {
           product.selectedSize = size; // Só seleciona se tiver estoque
+        }
       },
       child: Container(
         decoration: BoxDecoration(

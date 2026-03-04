@@ -52,8 +52,9 @@ class _SigUpScreenState extends State<SigUpScreen> {
                       AutovalidateMode.onUserInteraction, // Valida ao digitar
                   validator: (name) {
                     if (name!.isEmpty) return 'Campo obrigatório';
-                    if (name.trim().split(' ').length < 2)
+                    if (name.trim().split(' ').length < 2) {
                       return 'Preencha seu Nome completo'; // Mínimo 2 palavras
+                    }
                     return null;
                   },
                   onSaved: (name) =>
@@ -149,8 +150,9 @@ class _SigUpScreenState extends State<SigUpScreen> {
                                     duration: Duration(seconds: 2),
                                   ),
                                 );
-                                if (context.mounted)
+                                if (context.mounted) {
                                   Navigator.of(context).pop(); // Fecha tela
+                                }
                               }
                             }
                           },

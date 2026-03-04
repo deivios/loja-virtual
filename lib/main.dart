@@ -4,6 +4,7 @@
 import 'package:firebase_core/firebase_core.dart'; // Firebase Core - inicialização
 import 'package:flutter/material.dart'; // Widgets Material (Scaffold, AppBar, MaterialApp, etc.)
 import 'package:lojavirtual/firebase_options.dart'; // DefaultFirebaseOptions - configs por plataforma
+import 'package:lojavirtual/models/home_manager.dart';
 import 'package:lojavirtual/models/page_manager.dart'; // PageManager - controla índice do PageView
 import 'package:lojavirtual/models/cart_manager.dart'; // CartManager - gerencia carrinho
 import 'package:lojavirtual/models/product.dart'; // Product - modelo para rota /product
@@ -46,7 +47,11 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (_) => ProductManager(),
           lazy: false,
-        ), // ProductManager - escuta Firestore
+        ), // ProductManager - lista de produtos, escuta Firestore
+        Provider(
+          create: (_) => HomeManager(),
+          lazy: false,
+        ), // HomeManager - carrega seções da coleção 'home'
         ChangeNotifierProxyProvider<UserManager, CartManager>(
           // CartManager depende de UserManager
           create: (_) => CartManager(), // Cria na primeira vez

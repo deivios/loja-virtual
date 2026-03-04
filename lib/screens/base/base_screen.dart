@@ -22,11 +22,11 @@ class BaseScreen extends StatelessWidget { // Widget sem estado
         physics: const NeverScrollableScrollPhysics(), // Desativa scroll com dedo - só pelo Drawer
         children: [
           Scaffold( // Página 0 - Home
-            backgroundColor: Colors.blueAccent, // Cor de fundo azul clara
-            drawer: CustomDrawer(), // Menu lateral (hambúrguer)
+            backgroundColor: Colors.blueAccent,
+            drawer: CustomDrawer(),
             appBar: AppBar(
-              backgroundColor: Colors.blueAccent, // Cor da AppBar azul
-              title: const Text('Home', style: TextStyle(color: Colors.white)), // Título branco
+              backgroundColor: Colors.blueAccent,
+              title: const Text('Home', style: TextStyle(color: Colors.white)),
             ),
           ),
           ProductsScreen(), // Página 1 - Lista de produtos

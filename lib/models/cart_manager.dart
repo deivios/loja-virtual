@@ -111,23 +111,23 @@ class CartManager extends ChangeNotifier {
   }
 
   void increment(CartProduct cartProduct) {
-    final idx = items.indexWhere(
+    final idx = items.indexWhere( // procura o índice do item no carrinho
       (i) => i.productId == cartProduct.productId && i.size == cartProduct.size,
     );
-    if (idx < 0) return;
-    items[idx].quantity++;
-    _onItemUpdated();
-    notifyListeners();
+    if (idx < 0) return; // se não encontrou, sai sem fazer nada
+    items[idx].quantity++; // aumenta a quantidade em 1
+    _onItemUpdated(); // sincroniza com Firestore e remove se qtd=0
+    notifyListeners(); // atualiza a UI
   }
 
   void decrement(CartProduct cartProduct) {
-    final idx = items.indexWhere(
+    final idx = items.indexWhere( // procura o índice do item no carrinho
       (i) => i.productId == cartProduct.productId && i.size == cartProduct.size,
     );
-    if (idx < 0) return;
-    items[idx].quantity--;
-    _onItemUpdated();
-    notifyListeners();
+    if (idx < 0) return; // se não encontrou, sai sem fazer nada
+    items[idx].quantity--; // diminui a quantidade em 1
+    _onItemUpdated(); // sincroniza com Firestore e remove se qtd=0
+    notifyListeners(); // atualiza a UI
   }
 
   void _onItemUpdated() {
@@ -281,14 +281,16 @@ class CartManager extends ChangeNotifier {
       if (loadVersion == _loadVersion) {
         // nenhuma alteração concorrente ocorreu
         items = loadedItems; // substitui lista atual
-        for (final cp in items)
+        for (final cp in items) {
           _bindCallbacks(cp); // vincula callbacks em todos itens
+        }
         notifyListeners(); // atualiza interface
       }
     } on FirebaseException catch (e) {
       debugPrint('[CartManager] Erro ao carregar: ${e.code} - ${e.message}');
-      if (loadVersion == _loadVersion)
+      if (loadVersion == _loadVersion) {
         notifyListeners(); // notifica mesmo com erro
+      }
     }
   }
 }

@@ -13,8 +13,9 @@ class PageManager {
 
   void setPage(int newPage) {
     // Muda para outra aba (chamado pelo DrawerTile)
-    if (newPage == page)
+    if (newPage == page) {
       return; // Já está na mesma página, evita chamada desnecessária
+    }
     page = newPage; // Atualiza índice guardado
     pageController.jumpToPage(
       newPage,
