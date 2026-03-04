@@ -2,6 +2,12 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // Home: seções da tela inicial - qualquer pessoa pode LER
+    match /home/{sectionId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
     // Produtos: qualquer pessoa pode LER (para exibir no app sem login)
     match /products/{productId} {
       allow read: if true;
