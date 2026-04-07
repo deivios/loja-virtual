@@ -1,4 +1,12 @@
 {
+  "cursor.defaultSidebarLocation": "right",
+  "cursor.agentIdeUnification.sidebarLocation": "right",
+  "workbench.activityBar.orientation": "vertical",
+  "workbench.sideBar.location": "left",
+  "workbench.panel.defaultLocation": "bottom",
+  "workbench.layoutControl.enabled": true,
+  "workbench.secondarySideBar.defaultVisibility": "visible",
+  "window.commandCenter": true,
   "dart.previewFlutterUiGuides": true,
   "dart.debugExternalPackageLibraries": false,
   "dart.debugSdkLibraries": false,

@@ -36,11 +36,11 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       // Fornece vários objetos globais (qualquer filho acessa)
       providers: [
-        Provider(
+        ChangeNotifierProvider(
           create: (_) => UserManager(),
           lazy: false,
         ), // UserManager - lazy: false = cria ao iniciar
-        Provider(
+        ChangeNotifierProvider(
           create: (_) => PageManager(PageController()),
           lazy: false,
         ), // PageManager - Drawer usa setPage
@@ -48,7 +48,7 @@ class MyApp extends StatelessWidget {
           create: (_) => ProductManager(),
           lazy: false,
         ), // ProductManager - lista de produtos, escuta Firestore
-        Provider(
+        ChangeNotifierProvider(
           create: (_) => HomeManager(),
           lazy: false,
         ), // HomeManager - carrega seções da coleção 'home'

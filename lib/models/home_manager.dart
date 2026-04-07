@@ -1,27 +1,59 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:lojavirtual/models/section.dart';
 
-class HomeManager {
+class HomeManager extends ChangeNotifier {
   HomeManager() {
-    _loadSections(); // chama o método ao criar o HomeManager
+    _listenToSections();
   }
 
-  List<Section> sections = []; // lista de seções carregadas da coleção 'home'
+  final FirebaseFirestore firestore = FirebaseFirestore.instance;
+  final List<Section> _sections = [];
+  StreamSubscription<QuerySnapshot>? _subscription;
+  bool _loading = false;
+  String? _error;
 
-  final FirebaseFirestore firestore =
-      FirebaseFirestore.instance; // instância do Firestore
+  List<Section> get sections => List.unmodifiable(_sections);
+  bool get loading => _loading;
+  String? get error => _error;
 
-  Future<void> _loadSections() async {
-    firestore.collection('home').snapshots().listen((snapshot) {
-      // escuta a coleção 'home' em tempo real
-      sections
-          .clear(); // limpa a lista antes de preencher (evita duplicatas em atualizações)
-      for (final DocumentSnapshot document in snapshot.docs) {
-        // percorre cada documento retornado
-        sections.add(
-          Section.fromDocument(document),
-        ); // converte o documento em Section e adiciona à lista
-      }
-    });
+  void _setLoading(bool value) {
+    _loading = value;
+    notifyListeners();
+  }
+
+  void _setError(String? value) {
+    _error = value;
+    notifyListeners();
+  }
+
+  void _listenToSections() {
+    _setLoading(true);
+    _setError(null);
+    _subscription?.cancel();
+
+    _subscription = firestore.collection('home').snapshots().listen(
+      (snapshot) {
+        _sections
+          ..clear()
+          ..addAll(snapshot.docs.map((doc) => Section.fromDocument(doc)));
+        _setLoading(false);
+      },
+      onError: (e) {
+        _sections.clear();
+        _setError('Erro ao carregar home: $e');
+        _setLoading(false);
+      },
+    );
+  }
+
+  void retry() => _listenToSections();
+
+  @override
+  void dispose() {
+    _subscription?.cancel();
+    super.dispose();
   }
 }

@@ -3,10 +3,11 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart'; // FirebaseFirestore, SetOptions
 import 'package:firebase_auth/firebase_auth.dart' as auth; // auth. evita conflito com model.User
+import 'package:flutter/foundation.dart';
 import 'package:lojavirtual/models/user.dart' as model; // model.User
 import 'package:lojavirtual/helpers/firebase_erros.dart'; // getErrorString - traduz erros para PT-BR
 
-class UserManager {
+class UserManager extends ChangeNotifier {
   final auth.FirebaseAuth firebaseAuth = auth.FirebaseAuth.instance; // Singleton do Firebase Auth
   final FirebaseFirestore firestore = FirebaseFirestore.instance; // Singleton do Firestore
 
@@ -15,13 +16,19 @@ class UserManager {
   bool get isLoading => loading;
   bool get isLoggedIn => user != null; // true se há usuário logado
 
+  UserManager() {
+    _loadCurrentUser();
+  }
+
   Future<void> signOut() async { // Faz logout
     await firebaseAuth.signOut(); // Desloga no Firebase Auth
     user = null; // Limpa referência em memória
+    notifyListeners();
   }
 
   Future<String?> signIn(model.User user) async { // Login - retorna null se sucesso, mensagem de erro se falha
     loading = true;
+    notifyListeners();
     try {
       final result = await firebaseAuth.signInWithEmailAndPassword(
         email: user.email,
@@ -44,11 +51,13 @@ class UserManager {
       return 'Um erro inesperado ocorreu. Tente novamente.'; // Erro genérico (rede, etc.)
     } finally {
       loading = false; // Sempre desativa loading
+      notifyListeners();
     }
   }
 
   Future<String?> signUp(model.User user) async { // Cadastro - retorna null se sucesso
     loading = true;
+    notifyListeners();
     try {
       final result = await firebaseAuth.createUserWithEmailAndPassword(
         email: user.email,
@@ -68,6 +77,7 @@ class UserManager {
       return 'Um erro inesperado ocorreu. Tente novamente.';
     } finally {
       loading = false;
+      notifyListeners();
     }
   }
 
@@ -106,5 +116,6 @@ class UserManager {
         SetOptions(merge: true), // Cria documento no Firestore
       );
     }
+    notifyListeners();
   }
 }

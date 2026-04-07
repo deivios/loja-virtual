@@ -1,24 +1,15 @@
-// ========== PAGE_MANAGER.DART - Controla PageView ==========
-// Sincroniza índice com PageController. Drawer chama setPage().
+import 'package:flutter/widgets.dart';
 
-import 'package:flutter/cupertino.dart'; // PageController
+class PageManager extends ChangeNotifier {
+  PageManager(this.pageController);
 
-class PageManager {
-  PageManager(
-    this.pageController,
-  ); // Construtor - recebe controller da BaseScreen
-  final PageController pageController; // Referência ao controller do PageView
-  int page =
-      0; // Índice da página atual (0=Home, 1=Produtos, 2=Pedidos, 3=Lojas)
+  final PageController pageController;
+  int page = 0;
 
   void setPage(int newPage) {
-    // Muda para outra aba (chamado pelo DrawerTile)
-    if (newPage == page) {
-      return; // Já está na mesma página, evita chamada desnecessária
-    }
-    page = newPage; // Atualiza índice guardado
-    pageController.jumpToPage(
-      newPage,
-    ); // Faz PageView pular para a página (sem animação)
+    if (newPage == page) return;
+    page = newPage;
+    pageController.jumpToPage(newPage);
+    notifyListeners();
   }
 }

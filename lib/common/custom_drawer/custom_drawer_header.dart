@@ -10,7 +10,7 @@ class CustomDrawerHeader extends StatelessWidget { // Widget sem estado
 
   @override
   Widget build(BuildContext context) {
-    final userManager = context.read<UserManager>(); // Lê UserManager (login, signOut)
+    final userManager = context.watch<UserManager>(); // Escuta UserManager (login, signOut)
     return Container( // Container com padding
       padding: const EdgeInsets.fromLTRB(32, 24, 16, 8), // left 32, top 24, right 16, bottom 8
       child: Column( // Coluna vertical

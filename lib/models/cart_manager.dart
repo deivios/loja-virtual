@@ -16,7 +16,7 @@ class CartManager extends ChangeNotifier {
   UserManager? _userManager; // referência ao gerenciador de usuário
   num get productsPrice => items.fold(
     0.0,
-    (sum, cp) => sum + cp.totalPrice,
+    (accumulator, cp) => accumulator + cp.totalPrice,
   ); // preço total do carrinho
   int _loadVersion = 0; // contador para evitar race condition load × add
 

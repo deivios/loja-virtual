@@ -32,48 +32,111 @@ class Product extends ChangeNotifier { // Notifica quando selectedSize muda
     final data = doc.data() as Map<String, dynamic>? ?? {};
     final raw = data['images'] as List?; // Campo images do Firestore
     if (raw == null) return []; // Sem imagens
-    return raw.map((e) => e.toString()).toList(); // Garante que cada elemento é String
+    return raw
+        .whereType<String>()
+        .map((e) => e.trim())
+        .where((e) {
+          if (e.isEmpty ||
+              e == '[]' ||
+              e == '{}' ||
+              e.toLowerCase() == 'null' ||
+              e.toLowerCase() == 'undefined') {
+            return false;
+          }
+          final uri = Uri.tryParse(e);
+          return uri != null &&
+              (uri.scheme == 'http' || uri.scheme == 'https') &&
+              uri.host.isNotEmpty;
+        })
+        .toList(); // Apenas URLs remotas válidas
   }
 
   static num? _toNum(DocumentSnapshot doc, String key1, String key2, String key3, String key4) { // Extrai número
     final data = doc.data() as Map<String, dynamic>? ?? {};
     final v = data[key1] ?? data[key2] ?? data[key3] ?? data[key4]; // Tenta cada chave
-    if (v is num) return v; // Já é número
-    if (v is String) return num.tryParse(v.replaceAll('.', '').replaceAll(',', '.')); // "1.234,56" -> 1234.56
-    return null;
+    return _parseNum(v);
   }
 
   static List<ItemSize> _parseSizes(DocumentSnapshot document) { // Converte sizes/tamanhos em List<ItemSize>
     final data = document.data() as Map<String, dynamic>? ?? const {};
-    final raw = (data['sizes'] ?? data['tamanhos']) as List?; // Aceita sizes ou tamanhos
-    if (raw == null || raw.isEmpty) return []; // Sem tamanhos
+    final raw = data['sizes'] ?? data['tamanhos'] ?? data['variacoes'] ?? data['variacoesTamanho'];
+    if (raw == null) return []; // Sem tamanhos
 
-    return raw.map((e) {
-      if (e is Map) { // Cada tamanho é um Map com name, price, stock
-        return ItemSize.fromMap(_normalizeSizeMap(Map<String, dynamic>.from(e)));
-      }
-      return ItemSize.fromMap({'name': e.toString(), 'price': 0, 'stock': 0}); // Ou só string "P"
-    }).toList();
+    if (raw is List) {
+      if (raw.isEmpty) return [];
+      return raw
+          .map((e) {
+            if (e is Map) {
+              return ItemSize.fromMap(_normalizeSizeMap(Map<String, dynamic>.from(e)));
+            }
+            return ItemSize.fromMap({'name': e.toString(), 'price': 0, 'stock': 0});
+          })
+          .toList();
+    }
+
+    if (raw is Map) {
+      final mapRaw = Map<String, dynamic>.from(raw);
+      if (mapRaw.isEmpty) return [];
+      return mapRaw.entries
+          .map((entry) {
+            if (entry.value is Map) {
+              final valueMap = Map<String, dynamic>.from(entry.value as Map);
+              valueMap.putIfAbsent('name', () => entry.key);
+              return ItemSize.fromMap(_normalizeSizeMap(valueMap));
+            }
+            return ItemSize.fromMap({
+              'name': entry.key,
+              'price': entry.value,
+              'stock': 0,
+            });
+          })
+          .toList();
+    }
+
+    return [];
   }
 
   static Map<String, dynamic> _normalizeSizeMap(Map<String, dynamic> m) { // Normaliza chaves (name/nome, etc.)
     return {
-      'name': (m['name'] ?? m['nome'] ?? '-').toString(),
-      'price': _parseNum(m['price'] ?? m['preco']) ?? 0,
-      'stock': _parseInt(m['stock'] ?? m['estoque']) ?? 0,
+      'name': (m['name'] ?? m['nome'] ?? m['title'] ?? m['titulo'] ?? m['tamanho'] ?? '-').toString(),
+      'price': _parseNum(m['price'] ?? m['preco'] ?? m['preço'] ?? m['valor']) ?? 0,
+      'stock': _parseInt(m['stock'] ?? m['estoque'] ?? m['quantidade'] ?? m['qty']) ?? 0,
     };
   }
 
   static int? _parseInt(dynamic v) { // Converte para int
     if (v is int) return v;
     if (v is num) return v.toInt();
-    if (v is String) return int.tryParse(v);
+    if (v is String) {
+      final digitsOnly = v.replaceAll(RegExp(r'[^0-9\-]'), '');
+      if (digitsOnly.isEmpty) return null;
+      return int.tryParse(digitsOnly);
+    }
     return null;
   }
 
   static num? _parseNum(dynamic v) { // Converte para num (aceita vírgula decimal)
     if (v is num) return v;
-    if (v is String) return num.tryParse(v.replaceAll(',', '.')); // Vírgula -> ponto
+    if (v is String) {
+      var normalized = v.trim();
+      normalized = normalized.replaceAll(RegExp(r'[^0-9,.\-]'), '');
+      if (normalized.isEmpty) return null;
+
+      final lastComma = normalized.lastIndexOf(',');
+      final lastDot = normalized.lastIndexOf('.');
+      if (lastComma > -1 && lastDot > -1) {
+        final decimalSeparator = lastComma > lastDot ? ',' : '.';
+        if (decimalSeparator == ',') {
+          normalized = normalized.replaceAll('.', '').replaceAll(',', '.');
+        } else {
+          normalized = normalized.replaceAll(',', '');
+        }
+      } else if (lastComma > -1) {
+        normalized = normalized.replaceAll(',', '.');
+      }
+
+      return num.tryParse(normalized);
+    }
     return null;
   }
 
@@ -84,11 +147,18 @@ class Product extends ChangeNotifier { // Notifica quando selectedSize muda
   }
 
   ItemSize? findSize(String sizeName) { // Busca ItemSize pelo nome (P, M, GG)
+    final normalizedQuery = _normalizeSizeToken(sizeName);
     try {
-      return sizes.firstWhere((s) => s.name == sizeName);
+      return sizes.firstWhere(
+        (s) => _normalizeSizeToken(s.name) == normalizedQuery,
+      );
     } on StateError {
       return null; // firstWhere lança StateError se não encontrar
     }
+  }
+
+  String _normalizeSizeToken(String value) {
+    return value.trim().toUpperCase();
   }
 
   ItemSize? _selectedSize; // Tamanho selecionado na tela de detalhes

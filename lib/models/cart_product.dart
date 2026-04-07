@@ -15,28 +15,41 @@ class CartProduct {
   firestoreDocId; // ID do documento no Firestore (users/{uid}/cart/{id})
 
   CartProduct.fromProduct(
-    Product product,
+    this.product,
   ) // Construtor ao adicionar na tela de detalhes
-  : product = product,
-      productId = product.id,
+  : productId = product.id,
       quantity = 1, // Quantidade inicial sempre 1
-      size =
-          product.selectedSize!.name, // Tamanho que estava selecionado na tela
+      size = _normalizeSizeName(
+        product.selectedSize!.name,
+      ), // Tamanho selecionado normalizado
       firestoreDocId = null;
 
   CartProduct.fromDocument(
     DocumentSnapshot doc,
-    Product product,
+    this.product,
   ) // Construtor ao carregar do Firestore
-  : product = product,
-      productId = product.id,
-      quantity =
-          (doc.data() as Map<String, dynamic>? ?? {})['quantity'] as int? ??
-          1, // Pega do doc ou 1
-      size =
-          (doc.data() as Map<String, dynamic>? ?? {})['size'] as String? ??
-          '', // Pega do doc ou vazio
+  : productId = product.id,
+      quantity = _parseQuantity(
+        (doc.data() as Map<String, dynamic>? ?? {})['quantity'],
+      ), // Quantidade resiliente para int/double/string
+      size = _normalizeSizeName(
+        ((doc.data() as Map<String, dynamic>? ?? {})['size'] ?? '').toString(),
+      ), // Tamanho normalizado
       firestoreDocId = doc.id;
+
+  static int _parseQuantity(dynamic raw) {
+    if (raw is int) return raw;
+    if (raw is num) return raw.toInt();
+    if (raw is String) {
+      final parsed = int.tryParse(raw.trim());
+      if (parsed != null) return parsed;
+    }
+    return 1;
+  }
+
+  static String _normalizeSizeName(String raw) {
+    return raw.trim().toUpperCase();
+  }
 
   ItemSize? get itemSize {
     // Retorna ItemSize do tamanho (para obter preço)
@@ -89,8 +102,9 @@ class CartProduct {
 
   bool stackable(Product product) {
     // Pode empilhar? (mesmo produto + mesmo tamanho)
+    final selectedSize = _normalizeSizeName(product.selectedSize?.name ?? '');
     return productId == product.id &&
-        size == (product.selectedSize?.name ?? '');
+        size == selectedSize;
   }
 
   Map<String, dynamic> toCartItemMap() => {
