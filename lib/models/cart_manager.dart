@@ -5,6 +5,7 @@ import 'package:lojavirtual/models/cart_product.dart'; // importa modelo CartPro
 import 'package:lojavirtual/models/product.dart'; // importa modelo Product
 import 'package:lojavirtual/models/user.dart'; // importa modelo User (contém cartReference)
 import 'package:lojavirtual/models/user_manager.dart'; // importa UserManager para observar login
+import 'package:lojavirtual/models/order.dart'; // modelo de pedido para checkout
 
 class CartManager extends ChangeNotifier {
   // gerenciador do carrinho que notifica a UI
@@ -291,6 +292,45 @@ class CartManager extends ChangeNotifier {
       if (loadVersion == _loadVersion) {
         notifyListeners(); // notifica mesmo com erro
       }
+    }
+  }
+
+  /// Finaliza a compra: cria um pedido no Firestore (coleção 'orders'),
+  /// limpa o carrinho do usuário e notifica.
+  /// Retorna null em sucesso, ou string com mensagem de erro.
+  Future<String?> checkout({String address = ''}) async {
+    if (user == null) return 'Usuário não logado';
+    if (items.isEmpty) return 'Carrinho vazio';
+    if (!isCartValid) return 'Alguns itens estão sem estoque suficiente';
+
+    final orderId = _firestore.collection('orders').doc().id;
+
+    final order = Order(
+      id: orderId,
+      clientId: user!.id,
+      items: items.map((cp) => OrderProduct.fromCartProduct(cp)).toList(),
+      total: productsPrice,
+      date: DateTime.now(),
+      // status default 'Pendente'
+    );
+
+    try {
+      await _firestore.collection('orders').doc(orderId).set(order.toMap());
+
+      // Limpa carrinho no Firestore e local
+      final itemsCopy = List<CartProduct>.from(items);
+      for (final item in itemsCopy) {
+        await _removeFromFirestore(item);
+      }
+      items.clear();
+      notifyListeners();
+      return null; // sucesso
+    } on FirebaseException catch (e) {
+      debugPrint('[CartManager] Erro no checkout: ${e.code} - ${e.message}');
+      return 'Erro ao salvar pedido: ${e.message}';
+    } catch (e) {
+      debugPrint('[CartManager] Erro inesperado no checkout: $e');
+      return 'Erro inesperado: $e';
     }
   }
 }
