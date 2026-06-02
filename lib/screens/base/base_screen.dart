@@ -3,9 +3,10 @@
 // Navegação pelo Drawer. Scroll horizontal desativado.
 
 import 'package:flutter/material.dart'; // Scaffold, PageView, AppBar, PageController
-import 'package:lojavirtual/common/custom_drawer/custom_drawer.dart'; // Menu lateral
+import 'package:lojavirtual/common/custom_drawer/custom_drawer.dart'; // usado no placeholder de Lojas
 import 'package:lojavirtual/models/page_manager.dart'; // Controla índice do PageView
 import 'package:lojavirtual/screens/home/home_screen.dart';
+import 'package:lojavirtual/screens/orders_screen.dart'; // Meus Pedidos (real)
 import 'package:lojavirtual/screens/products/products_screen.dart'; // Lista de produtos
 import 'package:provider/provider.dart'; // Provider
 
@@ -24,20 +25,16 @@ class BaseScreen extends StatelessWidget { // Widget sem estado
         children: [
           const HomeScreen(), // Página 0 - Home
           ProductsScreen(), // Página 1 - Lista de produtos
-          Scaffold( // Página 2 - Meus Pedidos
-            backgroundColor: Colors.blueAccent,
-            drawer: CustomDrawer(),
-            appBar: AppBar(
-              backgroundColor: Colors.blueAccent,
-              title: const Text('Meus Pedidos', style: TextStyle(color: Colors.white)),
-            ),
-          ),
-          Scaffold( // Página 3 - Lojas
-            backgroundColor: Colors.blueAccent,
-            drawer: CustomDrawer(),
-            appBar: AppBar(
-              backgroundColor: Colors.blueAccent,
-              title: const Text('Lojas', style: TextStyle(color: Colors.white)),
+          const OrdersScreen(), // Página 2 - Meus Pedidos (implementado)
+          // Página 3 - Lojas (placeholder - pode virar lista de parceiros/filiais)
+          Scaffold(
+            drawer: const CustomDrawer(),
+            appBar: AppBar(title: const Text('Lojas'), centerTitle: true),
+            body: const Center(
+              child: Text(
+                'Lojas / Pontos de retirada\n\n(Em breve: mapa + lista de parceiros)',
+                textAlign: TextAlign.center,
+              ),
             ),
           ),
         ],

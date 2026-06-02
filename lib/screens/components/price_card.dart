@@ -94,7 +94,7 @@ class PriceCard extends StatelessWidget {
                           Colors.white, // Cor do texto e ícone = branco
                     ),
                     onPressed: onPressed,
-                    child: Text(buttonText ?? 'Continuar para Entre'),
+                    child: Text(buttonText ?? 'Continuar para Entrega'),
                   ),
                 ),
               ],
